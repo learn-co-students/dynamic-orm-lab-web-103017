@@ -18,10 +18,10 @@ class InteractiveRecord
 
   def initialize(hash={})
     # assign the attributes here (???)
-    self.class.column_names.each do |k, v| # name = id, name, etc.
+    hash.each do |k, v| # name = id, name, etc.
       self.send("#{k}=", v)
       # self.k = v # there's no '.k' method
-      binding.pry
+      #binding.pry
     end
   end
 
@@ -38,7 +38,22 @@ class InteractiveRecord
     columns = DB[:conn].execute(sql)
     columns.map do |column|
       column["name"]
+      #binding.pry
     end
+  end
+
+  def table_name_for_insert
+    #binding.pry
+    self.class.table_name
+  end
+
+  def col_names_for_insert
+    self.class.column_names.reject{|column| column == 'id'}.join(', ')
+  end
+
+  def values_for_insert
+    self.col_names_for_insert
+    binding.pry  
   end
   # binding.binding.pry
 
