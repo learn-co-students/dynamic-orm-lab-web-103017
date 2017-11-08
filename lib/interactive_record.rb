@@ -52,10 +52,47 @@ class InteractiveRecord
   end
 
   def values_for_insert
-    self.col_names_for_insert
-    binding.pry  
+    column_names = self.class.column_names.reject{|column| column == 'id'}
+    # column_names = ["name", "grade"]
+    # get 'Sam', '11' from 'name', 'grade'
+    column_names.map do |attribute| # "name", "grade"
+      arb = self.send(attribute) # add ticks around this whole statement
+      # binding.pry
+      "'#{arb}'"
+    end.join(', ') # we're gonna get an array of name, grade
   end
-  # binding.binding.pry
 
+  def save
+    sql = <<-SQL
+      INSERT INTO #{self.class.table_name} ( #{self.col_names_for_insert} )
+      VALUES ( #{self.values_for_insert})
+    SQL
+    DB[:conn].execute(sql)
+    @id = DB[:conn].execute("SELECT last_insert_rowid() FROM #{self.class.table_name}")[0][0]
+  end
+
+  def self.find_by_name(name)
+    sql = <<-SQL
+      SELECT *
+      FROM #{self.table_name}
+      WHERE name = "#{name}"
+    SQL
+    test = DB[:conn].execute(sql)
+    test
+  end
+
+  def self.find_by(attribute)
+    row = nil
+    attribute.each do |k, v|
+      sql = <<-SQL
+        SELECT *
+        FROM #{self.table_name}
+        WHERE #{k.to_s} = "#{v}"
+      SQL
+      # binding.pry
+      row = DB[:conn].execute(sql) # gives a row back
+    end
+    row
+  end
 
 end #THIS IS THE END OF MY CODE
