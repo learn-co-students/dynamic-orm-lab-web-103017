@@ -3,5 +3,9 @@ require 'active_support/inflector'
 require 'interactive_record.rb'
 
 class Student < InteractiveRecord
+  # student inherits from IR
+  self.column_names.each do |name|
+    attr_accessor name.to_sym
+  end
 
 end
